@@ -4,6 +4,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Loader from "../Loader/Loader";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import SearchBar from "../SearchBar/SearchBar";
+import { useEffect } from "react";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import MovieModal from "../MovieModal/MovieModal";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
@@ -39,6 +40,11 @@ export default function App() {
   const handleSelect = (movie: Movie) => setSelectedMovie(movie);
   const handleCloseModal = () => setSelectedMovie(null);
   const handlePageChange = (page: number) => setCurrentPage(page);
+  useEffect(() => {
+    if (isSuccess && movies.length === 0 && searchTerm) {
+      toast.error("No movies found for your request.");
+    }
+  }, [isSuccess, movies.length, searchTerm]);
 
   return (
     <div className={styles.container}>
@@ -52,11 +58,6 @@ export default function App() {
           message={(error as Error).message || "Something went wrong"}
         />
       )}
-
-      {!isLoading && !isError && movies.length === 0 && searchTerm && (
-        <ErrorMessage message="No movies found for your request." />
-      )}
-
       {!isLoading && !isError && movies.length > 0 && (
         <>
           <MovieGrid movies={movies} onSelect={handleSelect} />
